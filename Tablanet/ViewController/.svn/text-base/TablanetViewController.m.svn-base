@@ -1,0 +1,453 @@
+//
+//  ViewController.m
+//  Tablanet
+//
+//  Created by Valdrin on 16/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import "TablanetViewController.h"
+
+#import "TablanetGameViewController.h"
+
+@interface TablanetViewController (){
+    TablanetGame *game;
+    uint numPlayers;
+    GKSession *session;
+    GKMatch *match;
+    TablanetPlayer *localPlayer;
+    TablanetConnectionType connectionType;
+}
+@end
+
+@implementation TablanetViewController
+
+@synthesize onlineBtn;
+@synthesize numPlayersCtrl;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        self.navigationItem.title = @"Tablanet";
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    numPlayers = 2 + self.numPlayersCtrl.selectedSegmentIndex * 2;
+    [self.numPlayersCtrl addTarget:self action:@selector(numPlayersChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    game = [[TablanetGame alloc] init];
+    game.delegate = self;
+    
+    [self.onlineBtn setTitle:@"Connecting..." forState:UIControlStateNormal];
+    self.onlineBtn.enabled = false;
+    [[GCHelper sharedInstance] authenticateLocalPlayer:self delegate:self];
+}
+
+
+-(NSUInteger)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+}
+
+-(void)numPlayersChanged:(id)sender{
+    numPlayers = 2 + self.numPlayersCtrl.selectedSegmentIndex * 2;
+}
+#pragma OFFLINE Game
+
+-(IBAction)offlineGame:(id)sender{
+    
+    NSMutableArray *players = [NSMutableArray array];
+    for (int i=0; i<numPlayers; i++) {
+        TablanetPlayer *player = [[TablanetPlayer alloc] init];
+        NSString *name =[NSString stringWithFormat:@"Player %d",i+1];
+        player.name = name;
+        player.uid = name;
+        [players addObject:player];
+        [player release];
+    }
+    [localPlayer release];
+    localPlayer = nil;
+    [self startMatchWithPlayers:players connectionType:TablanetConnectionTypeOffline];
+}
+
+
+#pragma mark WIFI & BLUETOOTH Game
+
+-(IBAction)bluetoothWifi:(id)sender{
+    GKPeerPickerController *peerPicker = [[[GKPeerPickerController alloc] init] autorelease];
+    peerPicker.delegate = self;
+    peerPicker.connectionTypesMask = GKPeerPickerConnectionTypeNearby;
+    [peerPicker show];
+    [session release];
+    session = nil;
+}
+- (GKSession *)peerPickerController:(GKPeerPickerController *)picker sessionForConnectionType:(GKPeerPickerConnectionType)type
+{
+    //create ID for session
+    NSString *sessionIDString = @"MTBluetoothSessionID";
+    //create GKSession object
+    GKSession *aSession = [[[GKSession alloc] initWithSessionID:sessionIDString displayName:nil sessionMode:GKSessionModePeer] autorelease];
+    return aSession;
+}
+
+- (void)peerPickerController:(GKPeerPickerController *)picker didConnectPeer:(NSString *)peerID toSession:(GKSession *)asession
+{
+    //set session delegate and dismiss the picker
+    asession.delegate = self;
+    [session release];
+    session = [asession retain];
+    picker.delegate = nil;
+    [picker dismiss];
+    // should wait for all players, but we are already 2
+    [localPlayer release];
+    localPlayer = [[TablanetPlayer alloc] initWithName:session.displayName uid:session.peerID];
+    TablanetPlayer *peerPlayer = [[[TablanetPlayer alloc] initWithName:[session displayNameForPeer:peerID] uid:peerID] autorelease];
+    [self startMatchWithPlayers:[NSMutableArray arrayWithObjects:localPlayer, peerPlayer, nil] connectionType:TablanetConnectionTypeBluetooth];
+}
+
+- (void)session:(GKSession *)asession peer:(NSString *)peerID didChangeState:(GKPeerConnectionState)state
+{
+    if (state == GKPeerStateConnected){
+        [asession setDataReceiveHandler:self withContext:nil]; //set ViewController to receive data
+    }
+    else {
+        [self matchEnded];
+    }
+}
+- (void)receiveData:(NSData *)data fromPeer:(NSString *)peer inSession:(GKSession *)asession context:(void *)context
+{
+    if (session != asession) {
+        NSLog(@"diff session? %@ %@",asession.description, session.description);
+    }
+    [self handleData:data receivedFromPlayer:[self playerForId:peer]];
+}
+
+
+
+
+
+
+
+#pragma mark GAME CENTER Game
+
+
+-(IBAction)onlineGame:(id)sender{
+    [[GCHelper sharedInstance] findMatchWithPlayers:numPlayers viewController:self delegate:self turnBased:NO];
+}
+
+-(void)didSucceedAuthentication{
+    BOOL b = [[GCHelper sharedInstance] userAuthenticated];
+    NSString *t = b ? @"Game center" : @"no online gaming";
+    [self.onlineBtn setTitle:t forState:UIControlStateNormal];
+    self.onlineBtn.enabled = b;
+}
+
+-(void)didAcceptInvite{
+    [self.navigationController popToRootViewControllerAnimated:YES];
+    //TODO start a new game
+}
+
+-(void)matchStarted{
+    GKPlayer *gkLocalPlayer = [GKLocalPlayer localPlayer];
+    [localPlayer release];
+    localPlayer = [[TablanetPlayer alloc] initWithName:gkLocalPlayer.alias uid:gkLocalPlayer.playerID];
+    NSMutableArray *players = [NSMutableArray arrayWithObject:localPlayer];
+    NSArray *otherPlayers = [[[GCHelper sharedInstance] playersDict] allValues];
+    for (GKPlayer *gkPlayer in otherPlayers) {
+        TablanetPlayer *player = [[[TablanetPlayer alloc] initWithName:gkPlayer.alias uid:gkPlayer.playerID] autorelease];
+        [players addObject:player];
+    }
+    [match release];
+    match = [[GCHelper sharedInstance].match retain];
+    [self startMatchWithPlayers:players connectionType:TablanetConnectionTypeGameCenter];
+}
+
+
+-(void)matchEnded{
+    NSLog(@"ending game");
+    [match disconnect];
+    [match release];
+    match = nil;
+    
+    [session disconnectFromAllPeers];
+    session.delegate = nil;
+    [session release];
+    session = nil;
+    
+    [localPlayer release];
+    localPlayer = nil;
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+-(void)match:(GKMatch *)match didReceiveData:(NSData *)data fromPlayer:(NSString *)playerID{
+    [self handleData:data receivedFromPlayer:[self playerForId:playerID]];
+}
+
+
+//TODO
+
+-(void)enterNewGame:(GKTurnBasedMatch *)match{
+    
+}
+-(void)layoutMatch:(GKTurnBasedMatch *)match{
+    
+}
+
+-(void)takeTurn:(GKTurnBasedMatch *)match{
+    
+}
+
+-(void)receiveEndGame:(GKTurnBasedMatch *)match{
+    
+}
+-(void)sendNotice:(NSString *)notice forMatch:(GKTurnBasedMatch *)match{
+    
+}
+
+
+-(TablanetPlayer*)playerForId:(NSString*)pid{
+    TablanetPlayer *p = nil;
+    for (TablanetPlayer *player in game.players) {
+        if ([player.uid isEqualToString:pid]) {
+            p = player;
+            break;
+        }
+    }
+    return p;
+};
+
+#pragma mark Message utils
+-(TablanetCard*)cardForGCCard:(GCTablanetCard)gcCard fromCards:(NSArray*)cards{
+    if (gcCard.type>3 || gcCard.value>14) {
+        return nil;
+    }
+    int value = gcCard.value;
+    TablanetCardType type = (TablanetCardType)gcCard.type;
+    
+    for (TablanetCard *card in cards) {
+        if (card.value==value && card.type==type) {
+            return card;
+        }
+    }
+    return nil;
+}
+
+
+#pragma mark TablanetGameDelegate methods
+
+-(void)gameOver:(NSArray *)ranking lastPlayerToTake:(TablanetPlayer *)lastPlayerToTake{
+    [self.navigationController popToRootViewControllerAnimated:YES];
+    NSString *title = [NSString stringWithFormat:@"%@ wins!", [[ranking objectAtIndex:0] name]];
+    NSMutableString *rank = [NSMutableString string];
+    for (int i=0; i<ranking.count; i++) {
+        TablanetPlayer *player = [ranking objectAtIndex:i];
+        [rank appendFormat:@"%d) %@ - %d points\n",i+1, player.name,player.points];
+    }
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:title message:rank delegate:nil cancelButtonTitle:@"Yay!" otherButtonTitles:nil] autorelease];
+    [alert show];
+}
+
+-(void)player:(TablanetPlayer *)player didTakeCards:(NSArray *)tableCards withCard:(TablanetCard *)card{
+    if (card.tablanet) {
+        NSString *prompt = [NSString stringWithFormat:@"%@ did tablanet!", player.name];
+        [self setPromptAndNavHidden:prompt];
+    }
+    
+    if ([player.uid isEqualToString:localPlayer.uid]) {
+//        int cardsCount = tableCards.count;
+//        GCTablanetMessageDidTakeCards *message = malloc(sizeof(GCTablanetMessageDidTakeCards) + cardsCount * sizeof(GCTablanetCard));
+//        if (message) {
+//            //continue
+//            message->message.messageType = kMessageTypeTakesCards;
+//            message->card.type = card.type;
+//            message->card.value = card.value;
+//            message->cardsCount = cardsCount;
+//            for (int i=0; i<cardsCount; i++) {
+//                TablanetCard *tc = [tableCards objectAtIndex:i];
+//                int type = tc.type;
+//                int value = tc.value;
+//                message->takenCards[i].type = type;
+//                message->takenCards[i].value = value;
+//            }
+//            NSData *data = [NSData dataWithBytes:&message length:sizeof(GCTablanetMessageDidTakeCards)];
+//            NSError *err;
+//            BOOL success = [match sendDataToAllPlayers:data withDataMode:GKMatchSendDataReliable error:&err];
+//            if (!success) {
+//                NSLog(@"Error sending init packet");
+//                [self matchEnded];
+//            }
+//            else{
+//                free(message);
+//            }
+//        }
+        
+        GCTablanetMessageDidTakeCards message;
+        message.message.messageType = kMessageTypeTakesCards;
+        GCTablanetCard gcCard;
+        gcCard.type = card.type;
+        gcCard.value = card.value;
+        message.card = gcCard;
+        int cardsCount = tableCards.count;
+        for (int i=0; i<51; i++) {
+            int type = 9;
+            int value = 99;
+            if (i<cardsCount) {
+                TablanetCard *tc = [tableCards objectAtIndex:i];
+                type = tc.type;
+                value = tc.value;                
+            }
+            message.takenCards[i].type = type;
+            message.takenCards[i].value = value;
+        }
+        
+        NSData *data = [NSData dataWithBytes:&message length:sizeof(GCTablanetMessageDidTakeCards)];
+        [self sendData:data connectionType:connectionType];
+    }
+}
+
+-(void)player:(TablanetPlayer *)player didDropCard:(TablanetCard *)card{
+    if ([player.uid isEqualToString:localPlayer.uid]) {
+        GCTablanetMessageDidDropCard message;
+        message.message.messageType = kMessageTypeDropCard;
+        GCTablanetCard gcCard;
+        gcCard.type = card.type;
+        gcCard.value = card.value;
+        message.card = gcCard;
+        NSData *data = [NSData dataWithBytes:&message length:sizeof(GCTablanetMessageDidDropCard)];
+        [self sendData:data connectionType:connectionType];
+    }
+}
+
+-(void)nextRound:(NSArray *)ranking{
+    NSString *prompt = @"new round";
+    [self setPromptAndNavHidden:prompt];
+    NSLog(@"%@", ranking.description);
+}
+
+
+
+
+-(void)startMatchWithPlayers:(NSMutableArray*)players connectionType:(TablanetConnectionType)cType{
+    NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"uid" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
+    NSArray *sortedPlayers = [players sortedArrayUsingDescriptors:sortDescriptors];
+    game.players = [NSMutableArray arrayWithArray:sortedPlayers];
+    connectionType = cType;
+    
+    if (connectionType == TablanetConnectionTypeOffline) {
+        [game newGame];        
+        TablanetGameViewController *gameVC = [[[TablanetGameViewController alloc] initWithGame:game lockPlayer:nil] autorelease];
+        [self.navigationController pushViewController:gameVC animated:YES];
+    }
+    else if ([[game.players objectAtIndex:0] isEqual:localPlayer]) {
+        NSLog(@"%@ starts the game", localPlayer.uid);
+        
+        GCTablanetMessageGameBegin message;
+        message.message.messageType = kMessageTypeGameBegin;
+        int randomSeed = abs((int)arc4random());
+        NSLog(@"sending seed %d",randomSeed);
+        message.randomSeed = randomSeed;
+        NSData *data = [NSData dataWithBytes:&message length:sizeof(GCTablanetMessageGameBegin)];
+        BOOL success = [self sendData:data connectionType:cType];
+        if (!success) {
+            game.players = nil;
+        }
+        else{
+            NSMutableArray *cards = [game newDeckWithRandomSeed:randomSeed];
+            [game newGameWithCards:cards];
+            TablanetGameViewController *gameVC = [[[TablanetGameViewController alloc] initWithGame:game lockPlayer:localPlayer] autorelease];
+            [self.navigationController pushViewController:gameVC animated:YES];
+        }
+    }
+}
+
+-(void)handleData:(NSData*)data receivedFromPlayer:(TablanetPlayer*)player{
+    NSString *playerName = player.name;
+    GCTablanetMessage *message = (GCTablanetMessage *) [data bytes];
+    if (message->messageType == kMessageTypeGameBegin) {
+        GCTablanetMessageGameBegin * gameBeginMessage = (GCTablanetMessageGameBegin *) [data bytes];
+        int randomSeed = gameBeginMessage->randomSeed;
+        NSLog(@"%@ started new game passing randomSeed %d", playerName, randomSeed);
+        NSMutableArray *cards = [game newDeckWithRandomSeed:randomSeed];
+        [game newGameWithCards:cards];
+        TablanetGameViewController *gameVC = [[[TablanetGameViewController alloc] initWithGame:game lockPlayer:localPlayer] autorelease];
+        [self.navigationController pushViewController:gameVC animated:YES];
+    }
+    else if(message->messageType == kMessageTypeDropCard){
+        GCTablanetMessageDidDropCard * dropCardMessage = (GCTablanetMessageDidDropCard *) [data bytes];
+        NSLog(@"%@ dropped card", playerName);
+        
+        TablanetCard *card = [self cardForGCCard:dropCardMessage->card fromCards:player.cards];
+        TablanetGameViewController *gameVC = (TablanetGameViewController *)self.navigationController.visibleViewController;
+        [gameVC dropCard:card];
+    }
+    else if(message->messageType == kMessageTypeTakesCards){
+        GCTablanetMessageDidTakeCards * takeCardsMessage = (GCTablanetMessageDidTakeCards *) [data bytes];
+        NSLog(@"%@ took cards", playerName);
+        
+        TablanetCard *card = [self cardForGCCard:takeCardsMessage->card fromCards:player.cards];
+        NSMutableArray *cardsToTake = [NSMutableArray array];
+        for (int i=0; i<51; i++) {
+            GCTablanetCard c = takeCardsMessage->takenCards[i];
+            TablanetCard *tc = [self cardForGCCard:c fromCards:game.cardsOnTable];
+            if (!tc) {
+                break;
+            }
+            [cardsToTake addObject:tc];
+        }
+        TablanetGameViewController *gameVC = (TablanetGameViewController *)self.navigationController.visibleViewController;
+        [gameVC takeCards:cardsToTake withCard:card forPlayer:player];
+    }
+}
+
+-(BOOL)sendData:(NSData*)data connectionType:(TablanetConnectionType)cType{
+    BOOL success = false;
+    NSError *err;
+    if (cType==TablanetConnectionTypeGameCenter) {
+        success = [match sendDataToAllPlayers:data withDataMode:GKMatchSendDataReliable error:&err];
+    }
+    else if(cType==TablanetConnectionTypeBluetooth){
+        success = [session sendDataToAllPeers:data withDataMode:GKSendDataReliable error:&err];
+    }
+    if (!success) {
+        NSLog(@"Error sending packet; %@", err.description);
+        [self matchEnded];
+    }
+    return success;
+}
+
+#pragma mark utils
+
+-(void)setPromptAndNavHidden:(NSString*)prompt{
+    self.navigationController.visibleViewController.navigationItem.prompt = prompt;
+//    [self.navigationController setNavigationBarHidden:prompt==nil animated:YES];
+    if (prompt) {
+        [self performSelector:@selector(setPromptAndNavHidden:) withObject:nil afterDelay:2];
+    }
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)dealloc{
+    self.onlineBtn = nil;
+    self.numPlayersCtrl = nil;
+    [session release];
+    [match release];
+    [super dealloc];
+}
+@end

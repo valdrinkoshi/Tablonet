@@ -1,0 +1,409 @@
+//
+//  OfflineGameViewController.m
+//  Tablanet
+//
+//  Created by Valdrin on 16/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#define kCardWidth 80
+#define kCardHeight 120
+
+#import "TablanetGameViewController.h"
+#import "TablanetCardView.h"
+
+@interface TablanetGameViewController (){
+    TablanetPlayer *currentPlayer;
+    TablanetPlayer *lockPlayer;
+    TablanetCardView *currentCard;
+    NSMutableArray *playerCards;
+    NSMutableArray *tableCards;
+    NSMutableArray *selectedTableCards;
+    TablanetGame *game;
+    TablanetCardView *touchedCardView;
+    CGPoint initialTouchedCardViewCenter;
+    CGPoint initialTouch;
+    UIBarButtonItem *dropBtn;
+    UIBarButtonItem *takeBtn;
+}
+@end
+
+@implementation TablanetGameViewController
+
+-(id)initWithGame:(TablanetGame *)newGame lockPlayer:(TablanetPlayer *)player{
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        game = [newGame retain];
+        lockPlayer = [player retain];
+        
+        playerCards = [[NSMutableArray alloc] init];
+        
+        tableCards = [[NSMutableArray alloc] init];
+        selectedTableCards = [[NSMutableArray alloc] init];
+        
+        dropBtn = [[UIBarButtonItem alloc] initWithTitle:@"Drop" style:UIBarButtonItemStyleBordered target:self action:@selector(dropCard)];
+        takeBtn = [[UIBarButtonItem alloc] initWithTitle:@"Take" style:UIBarButtonItemStyleBordered target:self action:@selector(takeCards)];
+        
+        self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:takeBtn,dropBtn, nil];
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view, typically from a nib.
+    
+    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"table.png"]];
+    
+    UITapGestureRecognizer *tap = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectCardHandler:)] autorelease];
+    [self.view addGestureRecognizer:tap];
+//    UIPanGestureRecognizer *longPress = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(moveCardHandler:)] autorelease];
+    UILongPressGestureRecognizer *longPress = [[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(moveCardHandler:)] autorelease];
+    longPress.minimumPressDuration = .2;
+    longPress.delegate = self;
+    [self.view addGestureRecognizer:longPress];
+}
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [game distributeCards];
+    [self setupTable];
+    currentPlayer = [game.players objectAtIndex:0];
+    [self setupCardsForPlayer:currentPlayer];
+}
+
+-(NSUInteger)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskLandscape;
+}
+
+-(void)setupTable{
+    [tableCards makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [tableCards removeAllObjects];
+    CGFloat x = self.view.bounds.size.width * .5 - kCardWidth * .5;
+    for (int i=0; i<game.cardsOnTable.count; i++) {
+        TablanetCard *card = [game.cardsOnTable objectAtIndex:i];
+        TablanetCardView *tableCard = [[[TablanetCardView alloc] init] autorelease];
+        tableCard.card = card;
+        [tableCards addObject:tableCard];
+        tableCard.frame = CGRectMake(x, -kCardHeight, kCardWidth, kCardHeight);
+        [self.view addSubview:tableCard];
+    }
+}
+
+-(void)setupCardsForPlayer:(TablanetPlayer*)player{
+    [playerCards makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [playerCards removeAllObjects];
+    currentCard = nil;
+    
+    [selectedTableCards removeAllObjects];
+    [self layoutTableCards];
+    
+    currentPlayer = player;
+    
+    self.navigationItem.title = player.name;
+    CGFloat x = self.view.bounds.size.width * .5 - kCardWidth * .5;
+    for (int i=0; i<player.cards.count; i++) {
+        TablanetCard *card = [player.cards objectAtIndex:i];
+        TablanetCardView *playerCard = [[[TablanetCardView alloc] init] autorelease];
+        playerCard.card = card;
+        [playerCards addObject:playerCard];
+        playerCard.frame = CGRectMake(x, self.view.bounds.size.height, kCardWidth, kCardHeight);
+        [self.view addSubview:playerCard];
+    }
+    takeBtn.enabled = false;
+    dropBtn.enabled = false;
+    
+    TablanetCardView *selectedCard = playerCards.count==1 ? [playerCards objectAtIndex:0] : nil;
+    [self performSelector:@selector(playCard:) withObject:selectedCard afterDelay:1];
+}
+
+
+-(TablanetCardView*)cardViewForGesture:(UIGestureRecognizer*)gesture{
+    TablanetCardView *cardView = nil;
+    if (!lockPlayer || lockPlayer == currentPlayer) {
+        for (int i=gesture.view.subviews.count-1; i>=0; i--) {
+            TablanetCardView *v = [gesture.view.subviews objectAtIndex:i];
+            CGPoint p = [gesture locationInView:v];
+            if (CGRectContainsPoint(v.bounds, p)) {
+                cardView = v;
+                break;
+            }
+        }
+    }
+    return cardView;
+}
+
+-(void)selectCardHandler:(UITapGestureRecognizer*)sender{
+    TablanetCardView *cardView = [self cardViewForGesture:sender];
+    if (cardView==nil) {
+        if (selectedTableCards.count>0) {
+            [self deselectAllTableCards];
+        }
+        if (currentCard) {
+            [self playCard:nil];
+        }
+    }
+    else if([selectedTableCards containsObject:cardView]) {
+        [self deselectTableCard:cardView];
+    }
+    else if ([tableCards containsObject:cardView]){
+        [self selectTableCard:cardView];
+    }
+    else if(currentCard == cardView){
+        if (selectedTableCards.count>0) {
+            [self takeCards];
+        }
+        else{
+            [self dropCard];
+        }
+    }
+    else {
+        [self playCard:cardView];
+    }
+}
+
+-(BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    touchedCardView = [self cardViewForGesture:gestureRecognizer];
+    initialTouchedCardViewCenter = touchedCardView.center;
+    return touchedCardView!=nil;// && [playerCards containsObject:touchedCardView];
+};
+
+-(void)moveCardHandler:(UIGestureRecognizer*)sender{
+    if (sender.state==UIGestureRecognizerStateBegan) {
+        if ([playerCards containsObject:touchedCardView]) {
+            [self playCard:touchedCardView];
+        }
+        initialTouch = [sender locationInView:sender.view];
+    }
+    else if(sender.state==UIGestureRecognizerStateChanged){
+        CGPoint curTouch = [sender locationInView:sender.view];
+        CGPoint translation = CGPointMake(curTouch.x-initialTouch.x, curTouch.y-initialTouch.y);
+        if (![playerCards containsObject:touchedCardView]) {
+            translation.x *= .3;
+            translation.y *= .3;
+        }
+        touchedCardView.center = CGPointMake(initialTouchedCardViewCenter.x + translation.x, initialTouchedCardViewCenter.y + translation.y);
+    }
+    else if(sender.state==UIGestureRecognizerStateEnded){
+        CGFloat yOrigin = touchedCardView.frame.origin.y;
+        CGFloat yCenter = touchedCardView.center.y;
+        CGFloat yParentCenter = self.view.bounds.size.height/2;
+        
+        if (touchedCardView == currentCard && yOrigin<=yParentCenter) {
+            if(selectedTableCards.count>0){
+                [self takeCards];
+            }
+            else{
+                [self dropCard];
+            }
+        }
+        else if (touchedCardView == currentCard && yOrigin>yParentCenter) {
+            [self playCard:currentCard];
+        }
+        else if(touchedCardView != currentCard && yCenter>yParentCenter){
+            [self deselectTableCard:touchedCardView];
+        }
+        else if(touchedCardView != currentCard && yCenter<=yParentCenter){
+            [self selectTableCard:touchedCardView];
+        }
+        touchedCardView = nil;
+    }    
+}
+
+-(void)takeCards:(NSArray*)cardsToTake withCard:(TablanetCard*)card forPlayer:(TablanetPlayer*)player{
+    TablanetCardView *newCurrentCard = [self cardViewForCard:card];
+    if (currentCard != newCurrentCard) {
+        [self playCard:newCurrentCard];
+    }
+    for (TablanetCardView *cv in tableCards) {
+        if ([cardsToTake containsObject:cv.card]) {
+            [self selectTableCard:cv];
+        }
+    }
+    [self takeCardsForPlayer:player];
+}
+
+-(BOOL)takeCards{
+    return [self takeCardsForPlayer:currentPlayer];
+}
+
+-(BOOL)takeCardsForPlayer:(TablanetPlayer*)player{
+    NSMutableArray *cardsToTake = [NSMutableArray array];
+    for (TablanetCardView *cardView in selectedTableCards) {
+        [cardsToTake addObject:cardView.card];
+    }
+    BOOL canTake = currentCard && [game canPlayer:player takeCards:cardsToTake withCard:currentCard.card];
+    if (canTake) {
+        [game player:player takesCards:cardsToTake withCard:currentCard.card];
+        [UIView animateWithDuration:.3 animations:^{
+            CGPoint center = CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height + kCardHeight/2);
+            for (TablanetCardView *cardView in selectedTableCards) {
+                cardView.center = center;
+            }
+            for (TablanetCardView *cardView in playerCards) {
+                cardView.center = CGPointMake(cardView.center.x, center.y);
+            }
+            currentCard.center = center;
+            currentCard.layer.transform = CATransform3DIdentity;
+            
+        } completion:^(BOOL finished) {
+            [tableCards removeObjectsInArray:selectedTableCards];
+            [selectedTableCards makeObjectsPerformSelector:@selector(removeFromSuperview)];
+            [selectedTableCards removeAllObjects];
+            
+            int playerIndex = [game.players indexOfObject:player];
+            TablanetPlayer *nextPlayer = (playerIndex+1)==game.players.count ? [game.players objectAtIndex:0] : [game.players objectAtIndex:playerIndex+1];
+            [self setupCardsForPlayer:nextPlayer];
+        }];
+    }
+    else{
+        [self playCard:currentCard];
+        [self deselectAllTableCards];
+    }
+    return canTake;
+}
+-(TablanetCardView*)cardViewForCard:(TablanetCard*)card{
+    TablanetCardView *newCurrentCard = nil;
+    for (TablanetCardView *cv in playerCards) {
+        if (cv.card == card) {
+            newCurrentCard = cv;
+            break;
+        }
+    }
+    return newCurrentCard;
+}
+-(void)dropCard:(TablanetCard*)card{
+    TablanetCardView *newCurrentCard = [self cardViewForCard:card];
+    if (currentCard != newCurrentCard) {
+        [self playCard:newCurrentCard];
+    }
+    [self dropCard];
+}
+
+-(void)dropCard{
+    if (currentCard) {
+        self.navigationItem.prompt = nil;
+        
+        [game player:currentPlayer playCard:currentCard.card];
+        [selectedTableCards removeAllObjects];
+        
+        [playerCards removeObject:currentCard];
+        [tableCards addObject:currentCard];
+        currentCard = nil;
+        [self deselectAllTableCards];
+        [UIView animateWithDuration:.3 animations:^{
+            CGFloat y = self.view.bounds.size.height + kCardHeight/2;
+            for (TablanetCardView *cardView in playerCards) {
+                CGFloat x = cardView.center.x;
+                cardView.center = CGPointMake(x, y);
+            }
+        } completion:^(BOOL finished) {
+            int playerIndex = [game.players indexOfObject:currentPlayer];
+            currentPlayer = (playerIndex+1)==game.players.count ? [game.players objectAtIndex:0] : [game.players objectAtIndex:playerIndex+1];
+            [self setupCardsForPlayer:currentPlayer];
+        }];
+    }
+}
+
+-(void)playCard:(TablanetCardView*)cardView{
+    if ([playerCards containsObject:cardView]) {
+        currentCard = cardView;
+    }
+    else{
+        currentCard = nil;
+    }
+   
+    
+    CGFloat centerY = self.view.bounds.size.height + kCardHeight *.5 - 60;
+    
+    CGFloat totSpace = MIN(kCardWidth, self.view.bounds.size.width/playerCards.count);
+    CGFloat offsetX = kCardWidth/2 + MAX(0, (self.view.bounds.size.width - totSpace * playerCards.count)/2);
+    
+    CATransform3D tr = !lockPlayer || lockPlayer == currentPlayer ? CATransform3DIdentity : CATransform3DMakeRotation(M_PI, 0, 1, 0);
+    [UIView animateWithDuration:.3 animations:^{
+        for (int i=0; i<playerCards.count; i++) {
+            TablanetCardView *playerCard = [playerCards objectAtIndex:i];
+            CGFloat x = offsetX + i*totSpace;
+            playerCard.center = CGPointMake(x, centerY - (playerCard==currentCard) * kCardHeight/6);
+            playerCard.layer.sublayerTransform = tr;
+        }
+    } completion:^(BOOL finished) {        
+//        for (CardView *c in playerCards) {
+//            [self.view bringSubviewToFront:c];
+//        }
+    }];
+    
+    dropBtn.enabled = currentCard!=nil;
+    takeBtn.enabled = currentCard!=nil && selectedTableCards.count>0;
+}
+
+-(void)selectTableCard:(TablanetCardView*)cardView{
+    if ([tableCards containsObject:cardView] && ![selectedTableCards containsObject: cardView]) {
+        [selectedTableCards addObject:cardView];
+    }
+    [self layoutTableCards];
+    takeBtn.enabled = currentCard!=nil && selectedTableCards.count>0;
+}
+
+-(void)deselectTableCard:(TablanetCardView*)cardView{
+    if([selectedTableCards containsObject:cardView]){
+        [selectedTableCards removeObject:cardView];
+    }
+    [self layoutTableCards];
+    takeBtn.enabled = currentCard!=nil && selectedTableCards.count>0;
+}
+
+-(void)deselectAllTableCards{
+    [selectedTableCards removeAllObjects];
+    [self layoutTableCards];
+    takeBtn.enabled = currentCard!=nil && selectedTableCards.count>0;
+}
+
+
+-(void)layoutTableCards{
+    CGFloat totSpace = MIN(kCardWidth, self.view.bounds.size.width/tableCards.count);
+    CGFloat offsetX = kCardWidth/2 + MAX(0, (self.view.bounds.size.width - totSpace * tableCards.count)/2);
+    CGFloat y = self.view.bounds.size.height *.5f;//60 + kCardHeight/2;
+    
+    [UIView animateWithDuration:.3 animations:^{
+        for (int i=0; i<tableCards.count; i++) {
+            TablanetCardView *tableCard = [tableCards objectAtIndex:i];
+            CGFloat x =offsetX + i*totSpace;
+            tableCard.center = CGPointMake(x, y - [selectedTableCards containsObject: tableCard] * kCardHeight/6);
+            tableCard.layer.sublayerTransform = CATransform3DIdentity;
+        }
+    } completion:^(BOOL finished) {
+//        for (TablanetCardView *c in tableCards) {
+//            [self.view bringSubviewToFront:c];
+//        }
+//        for (TablanetCardView *c in selectedTableCards) {
+//            [self.view bringSubviewToFront:c];
+//        }
+    }];
+}
+
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+-(void)dealloc{
+    [tableCards release];
+    [selectedTableCards release];
+    [game release];
+    [playerCards release];
+    [takeBtn release];
+    [dropBtn release];
+    [lockPlayer release];
+    [super dealloc];
+}
+@end

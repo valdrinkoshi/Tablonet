@@ -1,0 +1,32 @@
+/*
+ Tablanet.strings
+ Tablanet
+ 
+ Created by Valdrin on 24/06/13.
+ Copyright (c) 2013 Valdrin. All rights reserved.
+ */
+"ACE" = "A";
+"QUEEN" = "D";
+"KING" = "K";
+"JACK" = "J";
+"Connecting" = "Chargement...";
+"Connect again" = "Se connecter";
+"Close" = "Fermer";
+"Cancel" = "Annuler";
+"Points" = "Points";
+"cards" = "cartes";
+"More cards"="Tu as plus cartes";
+"points" = "points";
+"point" = "point";
+"wins" = "à gagne";
+"End match" = "Terminer";
+"End message" = "Terminer le jeux? Tous les progrès seront perdus!";
+"did" = "a fait";
+"new round" = "New round";
+"Error sending packet" = "Erreur a envoyer le package";
+"Player" = "Joueur";
+"Error in connection with peer" = "Erreur a se connecter avec le peer";
+"disconnected" = "déconnecté";
+"Failed to connect with" = "Pas réussi à se connecter avec";
+"Match failed with error" = "Match terminé avec l'erreur";
+"New match" = "Continuer à jouer";

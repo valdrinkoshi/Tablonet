@@ -1,0 +1,65 @@
+//
+//  ViewController.h
+//  Tablanet
+//
+//  Created by Valdrin on 16/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "GCHelper.h"
+#import "TablanetGame.h"
+
+typedef enum {
+    kMessageTypeGameBegin = 0,
+    kMessageTypeTakesCards,
+    kMessageTypeDropCard,
+    kMessageTypeUndefined
+} GCTablanetMessageType;
+
+typedef struct {
+    GCTablanetMessageType messageType;
+    
+} GCTablanetMessage;
+
+typedef struct {
+    GCTablanetMessage message;
+    int randomSeed;
+} GCTablanetMessageGameBegin;
+
+typedef struct {
+    int type;
+    int value;
+} GCTablanetCard;
+
+typedef struct {
+    GCTablanetMessage message;
+    GCTablanetCard card;
+} GCTablanetMessageDidDropCard;
+
+typedef struct {
+    GCTablanetMessage message;
+    GCTablanetCard card;
+    int cardsCount;
+    GCTablanetCard takenCards[51];
+} GCTablanetMessageDidTakeCards;
+
+
+typedef enum{
+    TablanetConnectionTypeOffline = 0,
+    TablanetConnectionTypeGameCenter,
+    TablanetConnectionTypeBluetooth
+}TablanetConnectionType;
+
+
+@interface TablanetViewController : UIViewController<GCHelperDelegate, TablanetGameDelegate, GKSessionDelegate, GKPeerPickerControllerDelegate>{
+    UIButton *onlineBtn;
+    UISegmentedControl *numPlayersCtrl;
+}
+
+@property(nonatomic, retain) IBOutlet UIButton *onlineBtn;
+@property(nonatomic, retain) IBOutlet UISegmentedControl *numPlayersCtrl;
+-(IBAction)offlineGame:(id)sender;
+-(IBAction)onlineGame:(id)sender;
+-(IBAction)bluetoothWifi:(id)sender;
+@end

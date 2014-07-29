@@ -1,0 +1,67 @@
+//
+//  Player.m
+//  Tablanet
+//
+//  Created by Valdrin on 07/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import "TablanetPlayer.h"
+#import "TablanetCard.h"
+
+@implementation TablanetPlayer
+@synthesize name;
+@synthesize uid;
+@synthesize cards;
+@synthesize collectedCards;
+@synthesize hasMoreCards;
+
+-(id)init{
+    self = [super init];
+    if (self) {
+        cards = [[NSMutableArray alloc] init];
+        collectedCards = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+-(id)initWithName:(NSString*)playerName uid:(NSString*)playerId{
+    [self init];
+    if (self) {
+        self.name = playerName;
+        self.uid = playerId;
+    }
+    return self;
+}
+
+-(int)points{
+    int p = 0;
+    for (TablanetCard *card in collectedCards) {
+        p += card.points;
+    }
+    if (hasMoreCards) {
+        p += 3;
+    }
+    return p;
+}
+-(int)tablanets{
+    int count = 0;
+    for (TablanetCard *card in collectedCards) {
+        if (card.tablanet) {
+            count++;
+        }
+    }
+    return count;
+}
+-(NSString*)description{
+    return [NSString stringWithFormat:@"%@: %d points, %d tablanets, %d collected cards", self.name, self.points, self.tablanets, self.collectedCards.count];
+}
+
+-(void)dealloc{
+    [uid release];
+    [name release];
+    [cards release];
+    [collectedCards release];
+    [super dealloc];
+}
+@end

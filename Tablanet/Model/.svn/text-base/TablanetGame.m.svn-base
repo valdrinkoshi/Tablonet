@@ -1,0 +1,200 @@
+//
+//  Deck.m
+//  Tablanet
+//
+//  Created by Valdrin on 07/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import "TablanetGame.h"
+
+@implementation TablanetGame
+@synthesize delegate;
+@synthesize players;
+@synthesize cardsOnTable;
+
+
+-(NSMutableArray*)newDeckWithRandomSeed:(int)seed{
+    NSMutableArray *cards = [NSMutableArray array];
+    for (int i=0; i<52; i++) {
+        TablanetCard *card = [[TablanetCard alloc] init];
+        card.type = floor(i/13.0);
+        card.value = 2 + i%13;
+        [cards addObject:card];
+        [card release];
+    }
+    NSMutableArray *randomCards = [NSMutableArray array];
+    int sign = 1;
+    uint half = (uint)ceil(seed/2.0);
+    while (cards.count>0) {
+        int i = (seed + sign * half)%cards.count;
+        TablanetCard *card = [cards objectAtIndex:i];
+        [randomCards addObject:card];
+        [cards removeObjectAtIndex:i];
+        sign *= -1;
+    }
+    return randomCards;
+}
+
+-(void)newGame{    
+    [self newGameWithCards:[self newDeckWithRandomSeed:arc4random()]];
+}
+
+-(void)newGameWithCards:(NSMutableArray*)cards{
+    
+    lastPlayerToTake = nil;
+    
+    [cardsToDistribute release];
+    cardsToDistribute = [[NSMutableArray alloc] initWithArray:cards];
+    
+    //put 4 cards on the table
+    [cardsOnTable release];
+    cardsOnTable = [[NSMutableArray alloc] initWithArray:[cardsToDistribute subarrayWithRange:NSMakeRange(0, 4)]];
+    //remove them from the deck
+    [cardsToDistribute removeObjectsInRange:NSMakeRange(0, 4)];
+}
+
+-(void)player:(TablanetPlayer *)player playCard:(TablanetCard *)card{
+    [cardsOnTable addObject:card];
+    [player.cards removeObject:card];
+    if ([delegate respondsToSelector:@selector(player:didDropCard:)]) {
+        [delegate player:player didDropCard:card];
+    }
+    [self checkTableAndDistribute];
+}
+
+-(BOOL)shouldDistribute{
+    for (TablanetPlayer *p in players) {
+        if (p.cards.count>0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+-(void)checkTableAndDistribute{
+    if (self.shouldDistribute) {
+        if (cardsToDistribute.count==0) {
+            [lastPlayerToTake.collectedCards addObjectsFromArray:cardsOnTable];
+            [cardsOnTable removeAllObjects];
+            [delegate gameOver:self.playersByPoints lastPlayerToTake:lastPlayerToTake];
+        }
+        else{
+            [self distributeCards];
+        }
+    }
+}
+
+-(BOOL)canPlayer:(TablanetPlayer*)player takeCards:(NSArray*)tableCards withCard:(TablanetCard*)card{
+    BOOL canTake = true;
+    int values = 0;
+    int aces = 0;
+    for (TablanetCard *tableCard in tableCards) {
+        values += tableCard.value;
+        if (tableCard.value == 11) {
+            //is ace
+            aces++;
+        }
+        else if(tableCard.value > card.value){
+            //bigger cards can't be taken
+            canTake = false;
+            break;
+        }
+    }
+    int acesLessOne = aces>1 ? aces-1 : 0;
+    //check the value of cards
+    // consider all A as 1 a
+    // consider only one A as 11 and the other As as 1
+    canTake = canTake && (values%card.value == 0 || (values-10*aces)%card.value == 0 || (values-10*acesLessOne)%card.value == 0);
+    return canTake;
+};
+
+-(void)player:(TablanetPlayer*)player takesCards:(NSArray*)tableCards withCard:(TablanetCard*)card{
+    [player.collectedCards addObjectsFromArray:tableCards];
+    [cardsOnTable removeObjectsInArray:tableCards];
+    [player.collectedCards addObject:card];
+    [player.cards removeObject:card];
+    card.tablanet = (cardsOnTable.count==0);
+    lastPlayerToTake = player;
+    if ([delegate respondsToSelector:@selector(player:didTakeCards:withCard:)]) {
+        [delegate player:player didTakeCards:tableCards withCard:card];
+    }
+    [self checkTableAndDistribute];
+}
+
+
+-(void)distributeCards{
+    int cardsPerPlayer = 6;
+    //distribute 6 cards per player
+    for (int i=0; i<players.count; i++) {
+        TablanetPlayer *player = [players objectAtIndex:i];
+        NSArray *cards = [cardsToDistribute subarrayWithRange:NSMakeRange(cardsPerPlayer*i, cardsPerPlayer)];
+        player.cards = [NSMutableArray arrayWithArray:cards];
+    }
+    
+    //remove them from the deck
+    [cardsToDistribute removeObjectsInRange:NSMakeRange(0, cardsPerPlayer*players.count)];
+    if ([delegate respondsToSelector:@selector(nextRound:)]) {
+        [delegate nextRound:self.playersByPoints];
+    }
+}
+
+-(void)shuffleDeck:(NSMutableArray*)aDeck{
+    NSUInteger count = [aDeck count];
+    for (NSUInteger i = 0; i < count; ++i) {
+        // Select a random element between i and end of array to swap with.
+        NSInteger nElements = count - i;
+        NSInteger n = (arc4random() % nElements) + i;
+        [aDeck exchangeObjectAtIndex:i withObjectAtIndex:n];
+    }
+}
+
+-(NSArray *)playersByPoints{
+    TablanetPlayer *firstWithMoreCards = nil;    
+    if (cardsToDistribute.count==0 && cardsOnTable.count==0) {
+        NSArray *playersByCardCount = [players sortedArrayUsingComparator:^NSComparisonResult(TablanetPlayer *p1, TablanetPlayer *p2) {
+            int c1 = p1.collectedCards.count;
+            int c2 = p2.collectedCards.count;
+            if (c1 < c2) {
+                return NSOrderedDescending;
+            }
+            if (c1 > c2) {
+                return NSOrderedAscending;
+            }
+            return NSOrderedSame;
+        }];
+        firstWithMoreCards = [playersByCardCount objectAtIndex:0];
+        TablanetPlayer *secondWithMoreCards = [playersByCardCount objectAtIndex:1];
+        if (firstWithMoreCards.collectedCards.count == secondWithMoreCards.collectedCards.count) {
+            firstWithMoreCards = nil;
+            secondWithMoreCards = nil;
+        }
+    }
+    for (TablanetPlayer *p in players) {
+        p.hasMoreCards = p == firstWithMoreCards;
+    }
+    
+    NSArray *playersByPoints = [players sortedArrayUsingComparator:^NSComparisonResult(TablanetPlayer *p1, TablanetPlayer *p2) {
+        int c1 = p1.points;
+        int c2 = p2.points;
+        if (c1 < c2) {
+            return NSOrderedDescending;
+        }
+        if (c1 > c2) {
+            return NSOrderedAscending;
+        }
+        return NSOrderedSame;
+    }];
+    return playersByPoints;
+}
+
+-(void)dealloc{
+    lastPlayerToTake = nil;
+    delegate = nil;
+    [players release];
+    [cardsToDistribute release];
+    [cardsOnTable release];
+    [super dealloc];
+}
+
+@end

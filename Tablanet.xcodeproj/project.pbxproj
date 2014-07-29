@@ -1,0 +1,483 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FE0751E81831ECBB00F856BB /* TablanetAllPointsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE0751E71831ECBB00F856BB /* TablanetAllPointsViewController.m */; };
+		FE0751EB1832012000F856BB /* TablanetPlayerNamesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE0751EA1832012000F856BB /* TablanetPlayerNamesViewController.m */; };
+		FE0B286718335D2C00D9462C /* en.html in Resources */ = {isa = PBXBuildFile; fileRef = FE0B286618335D2C00D9462C /* en.html */; };
+		FE0B286A18335EEE00D9462C /* TablanetHelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE0B286918335EEE00D9462C /* TablanetHelpViewController.m */; };
+		FE28452C1830A7D70010182F /* cardbg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FE28452B1830A7D70010182F /* cardbg@2x.png */; };
+		FE28452E1830B6DF0010182F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FE28452D1830B6DF0010182F /* Images.xcassets */; };
+		FE4ED32E185EA08B00C7D63C /* TablanetMove.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4ED32D185EA08B00C7D63C /* TablanetMove.m */; };
+		FE4ED332185EC20600C7D63C /* TablanetInAppPurchaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4ED331185EC20600C7D63C /* TablanetInAppPurchaseManager.m */; };
+		FEBC90FB1860302800CD207B /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEBC90FA1860302800CD207B /* StoreKit.framework */; };
+		FEC14F0F1751A46C00C9B25B /* TablanetCollectedCardsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEC14F0E1751A46C00C9B25B /* TablanetCollectedCardsViewController.m */; };
+		FEC14F121751A5CE00C9B25B /* card.png in Resources */ = {isa = PBXBuildFile; fileRef = FEC14F101751A5CE00C9B25B /* card.png */; };
+		FEC14F131751A5CE00C9B25B /* table.png in Resources */ = {isa = PBXBuildFile; fileRef = FEC14F111751A5CE00C9B25B /* table.png */; };
+		FEC667531861501800D18114 /* MultipeerConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEC667521861501800D18114 /* MultipeerConnectivity.framework */; };
+		FEC66756186152C100D18114 /* MCHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FEC66755186152C100D18114 /* MCHelper.m */; };
+		FED600AF17794F9100D857C5 /* TablanetGameOverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FED600AE17794F9100D857C5 /* TablanetGameOverViewController.m */; };
+		FED600B217795DE600D857C5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FED600B417795DE600D857C5 /* Localizable.strings */; };
+		FEEA368C1772B95400BB2937 /* TablanetButton.m in Sources */ = {isa = PBXBuildFile; fileRef = FEEA368B1772B95400BB2937 /* TablanetButton.m */; };
+		FEF28764174C7C6700FFD9DF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF28763174C7C6700FFD9DF /* UIKit.framework */; };
+		FEF28766174C7C6700FFD9DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF28765174C7C6700FFD9DF /* Foundation.framework */; };
+		FEF28768174C7C6700FFD9DF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF28767174C7C6700FFD9DF /* CoreGraphics.framework */; };
+		FEF2876E174C7C6700FFD9DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FEF2876C174C7C6700FFD9DF /* InfoPlist.strings */; };
+		FEF28770174C7C6700FFD9DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF2876F174C7C6700FFD9DF /* main.m */; };
+		FEF28774174C7C6700FFD9DF /* TablanetAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF28773174C7C6700FFD9DF /* TablanetAppDelegate.m */; };
+		FEF2879A174C7DC000FFD9DF /* TablanetGameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF28796174C7DC000FFD9DF /* TablanetGameViewController.m */; };
+		FEF2879B174C7DC000FFD9DF /* TablanetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF28798174C7DC000FFD9DF /* TablanetViewController.m */; };
+		FEF287A5174C7DCC00FFD9DF /* GCHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF2879E174C7DCC00FFD9DF /* GCHelper.m */; };
+		FEF287A6174C7DCC00FFD9DF /* TablanetCard.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF287A0174C7DCC00FFD9DF /* TablanetCard.m */; };
+		FEF287A7174C7DCC00FFD9DF /* TablanetGame.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF287A2174C7DCC00FFD9DF /* TablanetGame.m */; };
+		FEF287A8174C7DCC00FFD9DF /* TablanetPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF287A4174C7DCC00FFD9DF /* TablanetPlayer.m */; };
+		FEF287AB174C7DD600FFD9DF /* TablanetCardView.m in Sources */ = {isa = PBXBuildFile; fileRef = FEF287AA174C7DD600FFD9DF /* TablanetCardView.m */; };
+		FEF287AD174C7E7700FFD9DF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF287AC174C7E7700FFD9DF /* QuartzCore.framework */; };
+		FEF287AF174C7E8000FFD9DF /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEF287AE174C7E8000FFD9DF /* GameKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FE0751E61831ECBB00F856BB /* TablanetAllPointsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetAllPointsViewController.h; path = ViewController/TablanetAllPointsViewController.h; sourceTree = "<group>"; };
+		FE0751E71831ECBB00F856BB /* TablanetAllPointsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetAllPointsViewController.m; path = ViewController/TablanetAllPointsViewController.m; sourceTree = "<group>"; };
+		FE0751E91832012000F856BB /* TablanetPlayerNamesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetPlayerNamesViewController.h; path = ViewController/TablanetPlayerNamesViewController.h; sourceTree = "<group>"; };
+		FE0751EA1832012000F856BB /* TablanetPlayerNamesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetPlayerNamesViewController.m; path = ViewController/TablanetPlayerNamesViewController.m; sourceTree = "<group>"; };
+		FE0B286618335D2C00D9462C /* en.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = en.html; sourceTree = "<group>"; };
+		FE0B286818335EEE00D9462C /* TablanetHelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetHelpViewController.h; path = ViewController/TablanetHelpViewController.h; sourceTree = "<group>"; };
+		FE0B286918335EEE00D9462C /* TablanetHelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetHelpViewController.m; path = ViewController/TablanetHelpViewController.m; sourceTree = "<group>"; };
+		FE28452B1830A7D70010182F /* cardbg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cardbg@2x.png"; sourceTree = "<group>"; };
+		FE28452D1830B6DF0010182F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		FE4ED32C185EA08B00C7D63C /* TablanetMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetMove.h; path = Model/TablanetMove.h; sourceTree = "<group>"; };
+		FE4ED32D185EA08B00C7D63C /* TablanetMove.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetMove.m; path = Model/TablanetMove.m; sourceTree = "<group>"; };
+		FE4ED330185EC20600C7D63C /* TablanetInAppPurchaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetInAppPurchaseManager.h; path = Model/TablanetInAppPurchaseManager.h; sourceTree = "<group>"; };
+		FE4ED331185EC20600C7D63C /* TablanetInAppPurchaseManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetInAppPurchaseManager.m; path = Model/TablanetInAppPurchaseManager.m; sourceTree = "<group>"; };
+		FEBC90FA1860302800CD207B /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		FEC14F0D1751A46C00C9B25B /* TablanetCollectedCardsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetCollectedCardsViewController.h; path = ViewController/TablanetCollectedCardsViewController.h; sourceTree = "<group>"; };
+		FEC14F0E1751A46C00C9B25B /* TablanetCollectedCardsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetCollectedCardsViewController.m; path = ViewController/TablanetCollectedCardsViewController.m; sourceTree = "<group>"; };
+		FEC14F101751A5CE00C9B25B /* card.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = card.png; path = Resources/card.png; sourceTree = "<group>"; };
+		FEC14F111751A5CE00C9B25B /* table.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = table.png; path = Resources/table.png; sourceTree = "<group>"; };
+		FEC667521861501800D18114 /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
+		FEC66754186152C100D18114 /* MCHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MCHelper.h; path = Model/MCHelper.h; sourceTree = "<group>"; };
+		FEC66755186152C100D18114 /* MCHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MCHelper.m; path = Model/MCHelper.m; sourceTree = "<group>"; };
+		FED600AD17794F9000D857C5 /* TablanetGameOverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetGameOverViewController.h; path = ViewController/TablanetGameOverViewController.h; sourceTree = "<group>"; };
+		FED600AE17794F9100D857C5 /* TablanetGameOverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetGameOverViewController.m; path = ViewController/TablanetGameOverViewController.m; sourceTree = "<group>"; };
+		FED600B317795DE600D857C5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FED600B71779696E00D857C5 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FED600B8177969CA00D857C5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FEEA368A1772B95400BB2937 /* TablanetButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetButton.h; path = View/TablanetButton.h; sourceTree = "<group>"; };
+		FEEA368B1772B95400BB2937 /* TablanetButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetButton.m; path = View/TablanetButton.m; sourceTree = "<group>"; };
+		FEF28760174C7C6700FFD9DF /* Tablanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tablanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEF28763174C7C6700FFD9DF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		FEF28765174C7C6700FFD9DF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		FEF28767174C7C6700FFD9DF /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		FEF2876B174C7C6700FFD9DF /* Tablanet-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tablanet-Info.plist"; sourceTree = "<group>"; };
+		FEF2876D174C7C6700FFD9DF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FEF2876F174C7C6700FFD9DF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = main.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		FEF28771174C7C6700FFD9DF /* Tablanet-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tablanet-Prefix.pch"; sourceTree = "<group>"; };
+		FEF28772174C7C6700FFD9DF /* TablanetAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TablanetAppDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		FEF28773174C7C6700FFD9DF /* TablanetAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TablanetAppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		FEF28795174C7DC000FFD9DF /* TablanetGameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetGameViewController.h; path = ViewController/TablanetGameViewController.h; sourceTree = "<group>"; };
+		FEF28796174C7DC000FFD9DF /* TablanetGameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetGameViewController.m; path = ViewController/TablanetGameViewController.m; sourceTree = "<group>"; };
+		FEF28797174C7DC000FFD9DF /* TablanetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetViewController.h; path = ViewController/TablanetViewController.h; sourceTree = "<group>"; };
+		FEF28798174C7DC000FFD9DF /* TablanetViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetViewController.m; path = ViewController/TablanetViewController.m; sourceTree = "<group>"; };
+		FEF2879D174C7DCC00FFD9DF /* GCHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCHelper.h; path = Model/GCHelper.h; sourceTree = "<group>"; };
+		FEF2879E174C7DCC00FFD9DF /* GCHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCHelper.m; path = Model/GCHelper.m; sourceTree = "<group>"; };
+		FEF2879F174C7DCC00FFD9DF /* TablanetCard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetCard.h; path = Model/TablanetCard.h; sourceTree = "<group>"; };
+		FEF287A0174C7DCC00FFD9DF /* TablanetCard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetCard.m; path = Model/TablanetCard.m; sourceTree = "<group>"; };
+		FEF287A1174C7DCC00FFD9DF /* TablanetGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetGame.h; path = Model/TablanetGame.h; sourceTree = "<group>"; };
+		FEF287A2174C7DCC00FFD9DF /* TablanetGame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetGame.m; path = Model/TablanetGame.m; sourceTree = "<group>"; };
+		FEF287A3174C7DCC00FFD9DF /* TablanetPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetPlayer.h; path = Model/TablanetPlayer.h; sourceTree = "<group>"; };
+		FEF287A4174C7DCC00FFD9DF /* TablanetPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetPlayer.m; path = Model/TablanetPlayer.m; sourceTree = "<group>"; };
+		FEF287A9174C7DD600FFD9DF /* TablanetCardView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TablanetCardView.h; path = View/TablanetCardView.h; sourceTree = "<group>"; };
+		FEF287AA174C7DD600FFD9DF /* TablanetCardView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TablanetCardView.m; path = View/TablanetCardView.m; sourceTree = "<group>"; };
+		FEF287AC174C7E7700FFD9DF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		FEF287AE174C7E8000FFD9DF /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FEF2875D174C7C6700FFD9DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEC667531861501800D18114 /* MultipeerConnectivity.framework in Frameworks */,
+				FEF287AF174C7E8000FFD9DF /* GameKit.framework in Frameworks */,
+				FEF287AD174C7E7700FFD9DF /* QuartzCore.framework in Frameworks */,
+				FEF28764174C7C6700FFD9DF /* UIKit.framework in Frameworks */,
+				FEBC90FB1860302800CD207B /* StoreKit.framework in Frameworks */,
+				FEF28766174C7C6700FFD9DF /* Foundation.framework in Frameworks */,
+				FEF28768174C7C6700FFD9DF /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FEF28757174C7C6700FFD9DF = {
+			isa = PBXGroup;
+			children = (
+				FEF28769174C7C6700FFD9DF /* Tablanet */,
+				FEF28762174C7C6700FFD9DF /* Frameworks */,
+				FEF28761174C7C6700FFD9DF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FEF28761174C7C6700FFD9DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FEF28760174C7C6700FFD9DF /* Tablanet.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FEF28762174C7C6700FFD9DF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FEC667521861501800D18114 /* MultipeerConnectivity.framework */,
+				FEBC90FA1860302800CD207B /* StoreKit.framework */,
+				FEF287AE174C7E8000FFD9DF /* GameKit.framework */,
+				FEF287AC174C7E7700FFD9DF /* QuartzCore.framework */,
+				FEF28763174C7C6700FFD9DF /* UIKit.framework */,
+				FEF28765174C7C6700FFD9DF /* Foundation.framework */,
+				FEF28767174C7C6700FFD9DF /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FEF28769174C7C6700FFD9DF /* Tablanet */ = {
+			isa = PBXGroup;
+			children = (
+				FED600B417795DE600D857C5 /* Localizable.strings */,
+				FEF28794174C7D2400FFD9DF /* ViewController */,
+				FEF28793174C7D1800FFD9DF /* Model */,
+				FEF28792174C7D1200FFD9DF /* View */,
+				FEF28791174C7CEC00FFD9DF /* Resources */,
+				FEF28772174C7C6700FFD9DF /* TablanetAppDelegate.h */,
+				FEF28773174C7C6700FFD9DF /* TablanetAppDelegate.m */,
+				FE28452D1830B6DF0010182F /* Images.xcassets */,
+				FEF2876A174C7C6700FFD9DF /* Supporting Files */,
+			);
+			path = Tablanet;
+			sourceTree = "<group>";
+		};
+		FEF2876A174C7C6700FFD9DF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FEF2876B174C7C6700FFD9DF /* Tablanet-Info.plist */,
+				FE0B286618335D2C00D9462C /* en.html */,
+				FEF2876C174C7C6700FFD9DF /* InfoPlist.strings */,
+				FEF2876F174C7C6700FFD9DF /* main.m */,
+				FEF28771174C7C6700FFD9DF /* Tablanet-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FEF28791174C7CEC00FFD9DF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FE28452B1830A7D70010182F /* cardbg@2x.png */,
+				FEC14F101751A5CE00C9B25B /* card.png */,
+				FEC14F111751A5CE00C9B25B /* table.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		FEF28792174C7D1200FFD9DF /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FEEA368A1772B95400BB2937 /* TablanetButton.h */,
+				FEEA368B1772B95400BB2937 /* TablanetButton.m */,
+				FEF287A9174C7DD600FFD9DF /* TablanetCardView.h */,
+				FEF287AA174C7DD600FFD9DF /* TablanetCardView.m */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		FEF28793174C7D1800FFD9DF /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FE4ED330185EC20600C7D63C /* TablanetInAppPurchaseManager.h */,
+				FE4ED331185EC20600C7D63C /* TablanetInAppPurchaseManager.m */,
+				FEF2879D174C7DCC00FFD9DF /* GCHelper.h */,
+				FEF2879E174C7DCC00FFD9DF /* GCHelper.m */,
+				FEC66754186152C100D18114 /* MCHelper.h */,
+				FEC66755186152C100D18114 /* MCHelper.m */,
+				FEF2879F174C7DCC00FFD9DF /* TablanetCard.h */,
+				FEF287A0174C7DCC00FFD9DF /* TablanetCard.m */,
+				FEF287A1174C7DCC00FFD9DF /* TablanetGame.h */,
+				FEF287A2174C7DCC00FFD9DF /* TablanetGame.m */,
+				FEF287A3174C7DCC00FFD9DF /* TablanetPlayer.h */,
+				FEF287A4174C7DCC00FFD9DF /* TablanetPlayer.m */,
+				FE4ED32C185EA08B00C7D63C /* TablanetMove.h */,
+				FE4ED32D185EA08B00C7D63C /* TablanetMove.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		FEF28794174C7D2400FFD9DF /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FEF28795174C7DC000FFD9DF /* TablanetGameViewController.h */,
+				FEF28796174C7DC000FFD9DF /* TablanetGameViewController.m */,
+				FEF28797174C7DC000FFD9DF /* TablanetViewController.h */,
+				FEF28798174C7DC000FFD9DF /* TablanetViewController.m */,
+				FEC14F0D1751A46C00C9B25B /* TablanetCollectedCardsViewController.h */,
+				FEC14F0E1751A46C00C9B25B /* TablanetCollectedCardsViewController.m */,
+				FED600AD17794F9000D857C5 /* TablanetGameOverViewController.h */,
+				FED600AE17794F9100D857C5 /* TablanetGameOverViewController.m */,
+				FE0751E61831ECBB00F856BB /* TablanetAllPointsViewController.h */,
+				FE0751E71831ECBB00F856BB /* TablanetAllPointsViewController.m */,
+				FE0751E91832012000F856BB /* TablanetPlayerNamesViewController.h */,
+				FE0751EA1832012000F856BB /* TablanetPlayerNamesViewController.m */,
+				FE0B286818335EEE00D9462C /* TablanetHelpViewController.h */,
+				FE0B286918335EEE00D9462C /* TablanetHelpViewController.m */,
+			);
+			name = ViewController;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FEF2875F174C7C6700FFD9DF /* Tablanet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FEF28786174C7C6700FFD9DF /* Build configuration list for PBXNativeTarget "Tablanet" */;
+			buildPhases = (
+				FEF2875C174C7C6700FFD9DF /* Sources */,
+				FEF2875D174C7C6700FFD9DF /* Frameworks */,
+				FEF2875E174C7C6700FFD9DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Tablanet;
+			productName = Tablanet;
+			productReference = FEF28760174C7C6700FFD9DF /* Tablanet.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FEF28758174C7C6700FFD9DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = Tablanet;
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Valdrin;
+				TargetAttributes = {
+					FEF2875F174C7C6700FFD9DF = {
+						DevelopmentTeam = B5ZVC8DWJ8;
+						SystemCapabilities = {
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = FEF2875B174C7C6700FFD9DF /* Build configuration list for PBXProject "Tablanet" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				fr,
+				it,
+			);
+			mainGroup = FEF28757174C7C6700FFD9DF;
+			productRefGroup = FEF28761174C7C6700FFD9DF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FEF2875F174C7C6700FFD9DF /* Tablanet */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FEF2875E174C7C6700FFD9DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEF2876E174C7C6700FFD9DF /* InfoPlist.strings in Resources */,
+				FE28452E1830B6DF0010182F /* Images.xcassets in Resources */,
+				FE0B286718335D2C00D9462C /* en.html in Resources */,
+				FEC14F121751A5CE00C9B25B /* card.png in Resources */,
+				FEC14F131751A5CE00C9B25B /* table.png in Resources */,
+				FED600B217795DE600D857C5 /* Localizable.strings in Resources */,
+				FE28452C1830A7D70010182F /* cardbg@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FEF2875C174C7C6700FFD9DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEF28770174C7C6700FFD9DF /* main.m in Sources */,
+				FEF28774174C7C6700FFD9DF /* TablanetAppDelegate.m in Sources */,
+				FE0B286A18335EEE00D9462C /* TablanetHelpViewController.m in Sources */,
+				FEF2879A174C7DC000FFD9DF /* TablanetGameViewController.m in Sources */,
+				FE4ED332185EC20600C7D63C /* TablanetInAppPurchaseManager.m in Sources */,
+				FEF2879B174C7DC000FFD9DF /* TablanetViewController.m in Sources */,
+				FEF287A5174C7DCC00FFD9DF /* GCHelper.m in Sources */,
+				FEF287A6174C7DCC00FFD9DF /* TablanetCard.m in Sources */,
+				FEF287A7174C7DCC00FFD9DF /* TablanetGame.m in Sources */,
+				FEF287A8174C7DCC00FFD9DF /* TablanetPlayer.m in Sources */,
+				FEF287AB174C7DD600FFD9DF /* TablanetCardView.m in Sources */,
+				FE0751E81831ECBB00F856BB /* TablanetAllPointsViewController.m in Sources */,
+				FE4ED32E185EA08B00C7D63C /* TablanetMove.m in Sources */,
+				FEC14F0F1751A46C00C9B25B /* TablanetCollectedCardsViewController.m in Sources */,
+				FE0751EB1832012000F856BB /* TablanetPlayerNamesViewController.m in Sources */,
+				FEEA368C1772B95400BB2937 /* TablanetButton.m in Sources */,
+				FED600AF17794F9100D857C5 /* TablanetGameOverViewController.m in Sources */,
+				FEC66756186152C100D18114 /* MCHelper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FED600B417795DE600D857C5 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FED600B317795DE600D857C5 /* en */,
+				FED600B71779696E00D857C5 /* it */,
+				FED600B8177969CA00D857C5 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		FEF2876C174C7C6700FFD9DF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FEF2876D174C7C6700FFD9DF /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		FEF28784174C7C6700FFD9DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FEF28785174C7C6700FFD9DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FEF28787174C7C6700FFD9DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tablanet/Tablanet-Prefix.pch";
+				INFOPLIST_FILE = "Tablanet/Tablanet-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		FEF28788174C7C6700FFD9DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tablanet/Tablanet-Prefix.pch";
+				INFOPLIST_FILE = "Tablanet/Tablanet-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FEF2875B174C7C6700FFD9DF /* Build configuration list for PBXProject "Tablanet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FEF28784174C7C6700FFD9DF /* Debug */,
+				FEF28785174C7C6700FFD9DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FEF28786174C7C6700FFD9DF /* Build configuration list for PBXNativeTarget "Tablanet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FEF28787174C7C6700FFD9DF /* Debug */,
+				FEF28788174C7C6700FFD9DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FEF28758174C7C6700FFD9DF /* Project object */;
+}

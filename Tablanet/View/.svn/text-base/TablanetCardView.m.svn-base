@@ -1,0 +1,100 @@
+//
+//  CardView.m
+//  Tablanet
+//
+//  Created by Valdrin on 16/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import "TablanetCardView.h"
+
+@implementation TablanetCardView
+@synthesize card;
+@synthesize isSelected;
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        int m = 10;
+        self.layer.cornerRadius = m;
+        self.layer.borderColor = [UIColor grayColor].CGColor;
+        self.layer.borderWidth = 1;
+        self.clipsToBounds = true;
+        
+        
+        
+        
+        cardBG = [[CATransformLayer layer] retain];        
+        
+        CALayer *cardFront  = [CALayer layer];        
+        cardFront.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"card.png"]].CGColor;
+        cardFront.borderWidth = 1;
+        cardFront.cornerRadius = m;
+        cardFront.zPosition = 0; // Put front of card on top relative to back of card
+        cardFront.doubleSided = NO;
+        [cardBG addSublayer:cardFront];
+        
+        CALayer *cardBack  = [CALayer layer];
+        cardBack.backgroundColor = [UIColor redColor].CGColor;
+        cardBack.zPosition = -1;
+        cardBack.doubleSided = NO;
+        
+        // Flip cardBack image so it is facing outward and visible when flipped
+        cardBack.transform = CATransform3DMakeRotation(M_PI,0,1,0);
+        [cardBG addSublayer:cardBack];
+        [self.layer addSublayer:cardBG];
+        
+        cardValue = [[UILabel alloc] init];
+        cardValue.backgroundColor = [UIColor clearColor];
+        cardValue.textAlignment = UITextAlignmentLeft;
+        [self addSubview:cardValue];
+        cardValueBottom = [[UILabel alloc] init];
+        cardValueBottom.backgroundColor = [UIColor clearColor];
+        cardValueBottom.textAlignment = UITextAlignmentRight;
+        [self addSubview:cardValueBottom];
+        
+    }
+    return self;
+}
+
+-(void)setCard:(TablanetCard *)c{
+    [card release];
+    card = [c retain];
+    cardValue.text = card.formattedValue;
+    cardValueBottom.text = card.formattedValue;
+    [self setNeedsLayout];
+}
+
+-(void)layoutSubviews{
+    CGRect parentBounds = self.bounds;
+    int m = 5;
+    [cardValue sizeToFit];
+    cardValue.frame = CGRectMake(m, m, parentBounds.size.width - m*2, cardValue.bounds.size.height);
+    [cardValueBottom sizeToFit];
+    cardValueBottom.frame = CGRectMake(m, parentBounds.size.height - cardValueBottom.bounds.size.height - m*2, parentBounds.size.width - m*2, cardValueBottom.bounds.size.height);
+    cardBG.frame = parentBounds;
+    for (CALayer *l in cardBG.sublayers) {
+        l.frame = parentBounds;
+    }
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+-(void)dealloc{
+    self.card = nil;
+    [cardBG release];
+    [cardValue release];
+    [cardValueBottom release];
+    [super dealloc];
+}
+
+@end

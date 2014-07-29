@@ -1,0 +1,332 @@
+//
+//  GCHelper.m
+//  Tablanet
+//
+//  Created by Valdrin on 15/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import "GCHelper.h"
+
+@implementation GCHelper
+@synthesize delegate;
+@synthesize acceptedInvite;
+@synthesize playersToInvite;
+
+@synthesize presentingViewController;
+@synthesize playersDict;
+@synthesize match;
+@synthesize turnBasedMatch;
+
+#pragma mark Initialization
+
+static GCHelper *sharedHelper = nil;
+
++ (GCHelper *) sharedInstance {
+    if (!sharedHelper && [GCHelper gameCenterAvailable]) {
+        sharedHelper = [[GCHelper alloc] init];
+    }
+    return sharedHelper;
+}
+
+- (BOOL)userAuthenticated{
+    return [GKLocalPlayer localPlayer].isAuthenticated;
+}
+
++ (BOOL)gameCenterAvailable {
+    // check for presence of GKLocalPlayer API
+    Class gcClass = (NSClassFromString(@"GKLocalPlayer"));
+    
+    // check if the device is running iOS 4.1 or later
+    NSString *reqSysVer = @"4.1";
+    NSString *currSysVer = [[UIDevice currentDevice] systemVersion];
+    BOOL osVersionSupported = ([currSysVer compare:reqSysVer
+                                           options:NSNumericSearch] != NSOrderedAscending);
+    
+    return (gcClass && osVersionSupported);
+}
+
+#pragma mark Internal functions
+
+- (void)lookupPlayers {
+    
+    NSLog(@"Looking up %d players...", match.playerIDs.count);
+    [GKPlayer loadPlayersForIdentifiers:match.playerIDs withCompletionHandler:^(NSArray *players, NSError *error) {
+        
+        if (error != nil) {
+            NSLog(@"Error retrieving player info: %@", error.localizedDescription);
+            matchStarted = NO;
+            [delegate matchEnded];
+        } else {
+            
+            // Populate players dict
+            self.playersDict = [NSMutableDictionary dictionaryWithCapacity:players.count];
+            for (GKPlayer *player in players) {
+                NSLog(@"Found player: %@", player.alias);
+                [playersDict setObject:player forKey:player.playerID];
+            }
+            
+            // Notify delegate match can begin
+            matchStarted = YES;
+            [delegate matchStarted];
+            
+        }
+    }];
+    
+}
+
+
+#pragma mark User functions
+-(void)authenticateLocalPlayer:(UIViewController *)viewController delegate:(id<GCHelperDelegate>)theDelegate{
+    if (!self.userAuthenticated) {
+        GKLocalPlayer.localPlayer.authenticateHandler = ^(UIViewController *vc, NSError *e) {
+            if (vc != nil) {
+                [viewController presentViewController:vc animated:YES completion:nil];
+            }
+            else if([[GKLocalPlayer localPlayer] isAuthenticated]){
+                GKTurnBasedEventHandler *ev = [GKTurnBasedEventHandler sharedTurnBasedEventHandler];
+                ev.delegate = self;
+                
+                [GKMatchmaker sharedMatchmaker].inviteHandler = ^(GKInvite *ai, NSArray *pti) {
+                    NSLog(@"Received invite");
+                    self.acceptedInvite = ai;
+                    self.playersToInvite = pti;
+                    [theDelegate didAcceptInvite];
+                };
+                [theDelegate didSucceedAuthentication];
+            }
+            else{
+                //disable game center?
+            }
+        };
+    }
+    else{
+        [theDelegate didSucceedAuthentication];
+    }
+}
+
+-(void)findMatchWithPlayers:(int)players viewController:(UIViewController *)viewController delegate:(id<GCHelperDelegate>)theDelegate turnBased:(BOOL)turnBased{
+    
+    matchStarted = NO;
+    self.match = nil;
+    self.turnBasedMatch = nil;
+    self.playersDict = nil;
+    delegate = theDelegate;
+    self.presentingViewController = viewController;
+    
+    if ([GKLocalPlayer localPlayer].isAuthenticated) {
+        if (turnBased) {
+            GKMatchRequest *request = [[[GKMatchRequest alloc] init] autorelease];
+            request.minPlayers = players;
+            request.maxPlayers = players;
+            GKTurnBasedMatchmakerViewController *mmvc = [[[GKTurnBasedMatchmakerViewController alloc] initWithMatchRequest:request] autorelease];
+            mmvc.turnBasedMatchmakerDelegate = self;
+            mmvc.showExistingMatches = YES;
+        }
+        else{
+            GKMatchmakerViewController *mmvc = nil;
+            if (acceptedInvite) {
+                mmvc = [[[GKMatchmakerViewController alloc] initWithInvite:acceptedInvite] autorelease];
+            }
+            else{
+                GKMatchRequest *request = [[[GKMatchRequest alloc] init] autorelease];
+                request.minPlayers = players;
+                request.maxPlayers = players;
+                request.playersToInvite = self.playersToInvite;
+                mmvc = [[[GKMatchmakerViewController alloc] initWithMatchRequest:request] autorelease];
+            }
+            mmvc.matchmakerDelegate = self;
+            [viewController presentModalViewController:mmvc animated:YES];
+        }
+    }
+    self.playersToInvite = nil;
+    self.acceptedInvite = nil;
+}
+
+#pragma mark GKMatchmakerViewControllerDelegate
+
+// The user has cancelled matchmaking
+- (void)matchmakerViewControllerWasCancelled:(GKMatchmakerViewController *)viewController {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+}
+
+// Matchmaking has failed with an error
+- (void)matchmakerViewController:(GKMatchmakerViewController *)viewController didFailWithError:(NSError *)error {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    NSLog(@"Error finding match: %@", error.localizedDescription);
+}
+
+// A peer-to-peer match has been found, the game should start
+- (void)matchmakerViewController:(GKMatchmakerViewController *)viewController didFindMatch:(GKMatch *)theMatch {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    
+    self.match = theMatch;
+    match.delegate = self;
+    if (!matchStarted && match.expectedPlayerCount == 0) {
+        NSLog(@"Ready to start match!");
+        [self lookupPlayers];
+    }
+}
+
+#pragma mark GKMatchDelegate
+
+// The match received data sent from the player.
+- (void)match:(GKMatch *)theMatch didReceiveData:(NSData *)data fromPlayer:(NSString *)playerID {
+    
+    if (match != theMatch) return;
+//    if (match != theMatch || ![self.playersDict objectForKey:playerID]) return;
+    [delegate match:theMatch didReceiveData:data fromPlayer:playerID];
+}
+
+// The player state changed (eg. connected or disconnected)
+- (void)match:(GKMatch *)theMatch player:(NSString *)playerID didChangeState:(GKPlayerConnectionState)state {
+    if (match != theMatch) return;
+    
+    switch (state) {
+        case GKPlayerStateConnected:
+            // handle a new player connection.
+            NSLog(@"Player connected!");
+            if (!matchStarted && theMatch.expectedPlayerCount == 0) {
+                NSLog(@"Ready to start match!");
+                [self lookupPlayers];
+            }
+            
+            break;
+        case GKPlayerStateDisconnected:
+            // a player just disconnected.
+            NSLog(@"%@ - Player disconnected! %@",[GKLocalPlayer localPlayer].playerID, playerID);
+            [delegate matchEnded];
+            break;
+    }
+}
+
+// The match was unable to connect with the player due to an error.
+- (void)match:(GKMatch *)theMatch connectionWithPlayerFailed:(NSString *)playerID withError:(NSError *)error {
+    
+    if (match != theMatch) return;
+    
+    NSLog(@"Failed to connect to player with error: %@", error.localizedDescription);
+    [delegate matchEnded];
+}
+
+// The match was unable to be established with any players due to an error.
+- (void)match:(GKMatch *)theMatch didFailWithError:(NSError *)error {
+    
+    if (match != theMatch) return;
+    
+    NSLog(@"Match failed with error: %@", error.localizedDescription);
+    [delegate matchEnded];
+}
+
+
+
+
+
+#pragma mark GKTurnBasedMatchmakerViewControllerDelegate
+
+-(void)turnBasedMatchmakerViewController: (GKTurnBasedMatchmakerViewController *)viewController didFindMatch:(GKTurnBasedMatch *)theMatch {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    self.turnBasedMatch = theMatch;
+    GKTurnBasedParticipant *firstParticipant = [theMatch.participants objectAtIndex:0];
+    if (firstParticipant.lastTurnDate == NULL) {
+        // It's a new game!
+        [delegate enterNewGame:theMatch];
+    } else {
+        if ([theMatch.currentParticipant.playerID isEqualToString:[GKLocalPlayer localPlayer].playerID]) {
+            // It's your turn!
+            [delegate takeTurn:theMatch];
+        } else {
+            // It's not your turn, just display the game state.
+            [delegate layoutMatch:theMatch];
+        }
+    }
+}
+
+-(void)turnBasedMatchmakerViewControllerWasCancelled: (GKTurnBasedMatchmakerViewController *)viewController {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    NSLog(@"has cancelled");
+}
+
+-(void)turnBasedMatchmakerViewController: (GKTurnBasedMatchmakerViewController *)viewController didFailWithError:(NSError *)error {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    NSLog(@"Error finding match: %@", error.localizedDescription);
+}
+
+-(void)turnBasedMatchmakerViewController:(GKTurnBasedMatchmakerViewController *)viewController playerQuitForMatch:(GKTurnBasedMatch *)theMatch {
+    NSUInteger currentIndex = [theMatch.participants indexOfObject:theMatch.currentParticipant];
+    GKTurnBasedParticipant *part;
+    
+    for (int i = 0; i < [theMatch.participants count]; i++) {
+        part = [theMatch.participants objectAtIndex:(currentIndex + 1 + i) % theMatch.participants.count];
+        if (part.matchOutcome != GKTurnBasedMatchOutcomeQuit) {
+            break;
+        }
+    }
+    NSLog(@"playerquitforMatch, %@, %@", theMatch, theMatch.currentParticipant);
+    [theMatch participantQuitInTurnWithOutcome:GKTurnBasedMatchOutcomeQuit nextParticipant:part matchData:theMatch.matchData completionHandler:nil];
+}
+
+#pragma mark GKTurnBasedEventHandlerDelegate
+
+-(void)handleInviteFromGameCenter:(NSArray *)pti {
+    [presentingViewController dismissModalViewControllerAnimated:YES];
+    GKMatchRequest *request = [[[GKMatchRequest alloc] init] autorelease];
+    request.playersToInvite = pti;
+    request.maxPlayers = 4;
+    request.minPlayers = 2;
+    GKTurnBasedMatchmakerViewController *viewController =
+    [[GKTurnBasedMatchmakerViewController alloc] initWithMatchRequest:request];
+    viewController.showExistingMatches = NO;
+    viewController.turnBasedMatchmakerDelegate = self;
+    [presentingViewController presentModalViewController:viewController animated:YES];
+}
+
+- (void)handleTurnEventForMatch:(GKTurnBasedMatch *)theMatch didBecomeActive:(BOOL)didBecomeActive{
+    NSLog(@"Turn has happened");
+    BOOL isThisMatch = [theMatch.matchID isEqualToString:turnBasedMatch.matchID];
+    if (didBecomeActive) {
+        if (isThisMatch) {
+            // it's the current match and it's our turn now
+            [delegate takeTurn:theMatch];
+        }
+        else{
+            // it's the current match, but it's someone else's turn
+            [delegate sendNotice:@"It's your turn for another match" forMatch:theMatch];
+        }
+    }
+    else if(isThisMatch){
+        // it's the current match, but it's someone else's turn
+        [delegate layoutMatch:theMatch];
+    }
+    else {
+        // it's the not current match, and it's someone else's turn
+    }
+}
+
+-(void)handleTurnEventForMatch:(GKTurnBasedMatch *)theMatch {
+    NSLog(@"Turn has happened");
+    BOOL didBecomeActive = [theMatch.currentParticipant.playerID isEqualToString:[GKLocalPlayer localPlayer].playerID];
+    [self handleTurnEventForMatch:theMatch didBecomeActive:didBecomeActive];
+    
+}
+
+-(void)handleMatchEnded:(GKTurnBasedMatch *)theMatch {
+    NSLog(@"Game has ended");
+    if ([theMatch.matchID isEqualToString:turnBasedMatch.matchID]) {
+        [delegate receiveEndGame:theMatch];
+    } else {
+        [delegate sendNotice:@"Another Game Ended!" forMatch:theMatch];
+    }
+}
+
+-(void)dealloc{
+    self.presentingViewController = nil;
+    self.acceptedInvite = nil;
+    self.playersDict = nil;
+    self.playersToInvite = nil;
+    self.match = nil;
+    self.turnBasedMatch = nil;
+    [super dealloc];
+}
+
+@end

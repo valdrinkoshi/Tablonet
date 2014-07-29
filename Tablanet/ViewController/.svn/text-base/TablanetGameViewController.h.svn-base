@@ -1,0 +1,20 @@
+//
+//  OfflineGameViewController.h
+//  Tablanet
+//
+//  Created by Valdrin on 16/12/12.
+//  Copyright (c) 2012 Valdrin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "TablanetGame.h"
+
+@interface TablanetGameViewController : UIViewController<UIGestureRecognizerDelegate>{
+
+}
+
+-(id)initWithGame:(TablanetGame*)newGame lockPlayer:(TablanetPlayer*)player;
+-(void)dropCard:(TablanetCard*)card;
+-(void)takeCards:(NSArray*)cardsToTake withCard:(TablanetCard*)card forPlayer:(TablanetPlayer*)player;
+
+@end
